@@ -1,0 +1,136 @@
+# freehand: Apple Siri Remote -> anything.
+#
+# Edits take effect on the next button press; no restart needed.
+# Logs: journalctl --user -u freehand -f      See button names live: freehand learn
+#
+# Buttons: siri, tv, back, select (centre click), up, down, left, right,
+#          play_pause, mute, volume_up, volume_down, power
+#
+# Each [buttons.NAME] can have:
+#   press   = action   run the moment the button goes down
+#   release = action   run when it comes back up
+#   tap     = action   a short press (if `hold` is set, fires on release; else on press)
+#   hold    = action   fires once the button has been held for hold_ms
+#   repeat  = true     keep firing tap (or hold, once reached) while held
+#   hold_ms = 600      per-button override
+#   double_tap = action  two clicks; delays tap to distinguish it
+#   triple_tap = action  three clicks; also delays double_tap
+#   click_ms = 300       maximum gap between clicks; per-button override
+#   repeat_ms = 25      per-button repeat interval override
+# Multi-tap actions can use repeat when an explicit hold action is set.
+# or instead:
+#   menu  = "name"     opens [menus.name]
+#   mouse = "left"     acts as a mouse button ("left", "right", "middle"); hold to drag
+#
+# An action is one of:
+#   "shell command"
+#   { keys = "ctrl+shift+t" }   a key chord, sent with wtype (keysym names: Return, Up, Tab, space, ...)
+#   { type = "some text" }      type literal text
+#   [ action, action, ... ]     several, in order
+
+[dictation]
+# What holding the Siri button does:
+#   "computer"  same as holding Superwhisper's own shortcut: records from your
+#               computer's mic, with Superwhisper's indicator, sounds and auto-paste.
+#   "remote"    records from the remote's own mic, then pastes the transcription
+#               (works from across the room).
+#   "off"       the Siri button is an ordinary button; map it under [buttons.siri].
+mic = "computer"
+# Optional short Siri click; recording then starts only after hold_ms:
+# tap = { keys = "Return" }
+# hold_ms = 300
+
+[agent]
+# Set voice = "agent" on an app menu, or voice = "pick" on a thread menu.
+# Codex drives the desktop through hypruse (uv tool install hypruse).
+# Back stops recording, matching, or a running agent. Requires codex login.
+model = "gpt-6-astra"
+# command = "..."   # replace the agent; {text} becomes the spoken request
+
+[remote]
+# Pin to one remote by Bluetooth address; otherwise any paired 3rd-gen Siri Remote.
+# address = "00:00:00:00:00:00"
+
+[timing]
+click_ms = 300
+hold_ms = 400
+repeat_delay_ms = 350
+repeat_ms = 90
+
+# --- Clickpad ring and centre ---------------------------------------------
+[buttons.up]
+tap = { keys = "Up" }
+repeat = true
+
+[buttons.down]
+tap = { keys = "Down" }
+repeat = true
+
+[buttons.left]
+tap = { keys = "Left" }
+repeat = true
+
+[buttons.right]
+tap = { keys = "Right" }
+repeat = true
+
+[buttons.select]
+mouse = "left"   # click the centre of the pad to click; hold it and slide to drag
+
+# --- Back / TV --------------------------------------------------------------
+[buttons.back]
+tap = { keys = "BackSpace" }   # also closes an open pie menu
+repeat = true
+
+[buttons.tv]
+tap = { keys = "Return" }
+hold = { keys = "super+Tab" }   # next workspace
+
+# --- Media ----------------------------------------------------------------
+[buttons.play_pause]
+# Reserved for application-specific pie menus:
+# [applications.example.buttons.play_pause]
+# menu = "example_actions"
+
+[buttons.volume_up]
+tap = "omarchy-audio-output-volume raise"
+repeat = true
+
+[buttons.volume_down]
+tap = "omarchy-audio-output-volume lower"
+repeat = true
+
+[buttons.mute]
+tap = "omarchy-audio-output-volume mute-toggle"
+
+# --- Power ----------------------------------------------------------------
+# A tap does nothing (so a stray press can't hurt); hold for the system menu.
+[buttons.power]
+hold = """omarchy-shell shell toggle omarchy.menu '{"menu":"system"}'"""
+hold_ms = 800
+
+# --- Scroll wheel -----------------------------------------------------------
+# Run your thumb around the outer ring of the clickpad to scroll, like a click
+# wheel. Touches that start on the inner pad are left alone.
+[wheel]
+enabled = true
+ring = 1.1          # where the ring starts, as a multiple of [touchpad] radius
+step_deg = 20       # degrees around the ring per scroll notch
+clockwise = "down"  # or "up"
+
+# --- Mouse pointer ----------------------------------------------------------
+# Slide your thumb on the inner pad to move the pointer, like a laptop trackpad
+# (relative: lift and slide again to keep going). Not while a pie menu is open,
+# and not for touches that start on the outer ring (those scroll).
+[mouse]
+enabled = true
+speed = 0.8           # pixels per touch unit for slow moves
+accel = 0.04          # quicker strokes go further...
+max_gain = 4.0        # ...up to this many times `speed`
+smoothing = 0.4       # 0 = raw; nearer 1 = steadier but laggier
+click_settle_ms = 150 # pointer holds still this long after a click, so clicks land where you aimed
+
+[recording]
+# Optional append-only JSONL for video replay; empty disables recording.
+# Relative paths are resolved beside this config. Hot reloads on a press.
+event_log = ""

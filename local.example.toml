@@ -1,0 +1,15 @@
+# Copy to ~/.config/freehand/local.toml (or $XDG_CONFIG_HOME/freehand/local.toml).
+# Fill this in locally. Never commit real machine IDs, archive paths or credentials.
+
+[chat]
+# Optional argv array for your own launch/focus helper. No shell expansion.
+focus_command = ["chromium", "--app=https://chat.google.com/"]
+
+[chat_search]
+# All five fields are required only when using voice = "chat-search".
+# Paths refer to the remote archive host, not this computer.
+environment_id = ""
+archive_path = ""
+skill_path = ""
+provider = ""
+model = ""

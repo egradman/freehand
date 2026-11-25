@@ -1,0 +1,13 @@
+[Unit]
+Description=freehand: Apple TV remote button mapper
+After=graphical-session.target superwhisper.service bluetooth.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/freehand run
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
